@@ -26,8 +26,10 @@ namespace MusicVis
         DeviceInformation audioInput;
         DeviceInformation audioOutput;
 
-        List<Sprite> leftSprites;
-        List<Sprite> rightSprites;
+        CircleManager circleManager;
+
+        public static int WindowWidth;
+        public static int WindowHeight;
 
         public Game1()
         {
@@ -66,11 +68,15 @@ namespace MusicVis
                 for (int j = 0; j < 220; j++)
                 {
                     int num = 100000;
-                    leftSprites[j].drawRect.Width = (int)(num * leftChannel[j]);
-                    leftSprites[j].drawRect.Height = (int)(num * leftChannel[j]);
-
-                    rightSprites[j].drawRect.Width = (int)(num * rightChannel[j]);
-                    rightSprites[j].drawRect.Height = (int)(num * rightChannel[j]);
+                    int count = (int)(num * leftChannel[j]);
+                    count = MathHelper.Clamp(count, 0, 5);
+                    for (int k = 0; k < count; k++)
+                    {
+                        int customWindowHeight = (int)(WindowHeight * 1);
+                        int slot = j * (customWindowHeight / 220);
+                        int inverseSlot = WindowHeight - slot;
+                        circleManager.Spawn(j, inverseSlot);
+                    }
                 }
             }
         }
@@ -84,17 +90,10 @@ namespace MusicVis
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
-            leftSprites = new List<Sprite>();
-            rightSprites = new List<Sprite>();
-            for (int i = 0; i < 220; i++)
-            {
-                leftSprites.Add(new Sprite(graphics));
-                leftSprites[i].position = new Vector2(100, 100 + i);
-                leftSprites[i].color = new Color(World.Random.Next(0, 255), World.Random.Next(0, 255), World.Random.Next(0, 255));
-                rightSprites.Add(new Sprite(graphics));
-                rightSprites[i].position = new Vector2(100, 100 + i);
-                rightSprites[i].color = new Color(World.Random.Next(0, 255), World.Random.Next(0, 255), World.Random.Next(0, 255));
-            }
+            WindowWidth = graphics.GraphicsDevice.Viewport.Width;
+            WindowHeight = graphics.GraphicsDevice.Viewport.Height;
+
+            circleManager = new CircleManager(Content.Load<Texture2D>("circle"));
 
             var audioInputDevices = await DeviceInformation.FindAllAsync(DeviceClass.AudioCapture);
             foreach (var device in audioInputDevices)
@@ -168,11 +167,10 @@ namespace MusicVis
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
-            for (int i = 0; i < 220; i++)
-            {
-                leftSprites[i].Update();
-                rightSprites[i].Update();
-            }
+            WindowWidth = graphics.GraphicsDevice.Viewport.Width;
+            WindowHeight = graphics.GraphicsDevice.Viewport.Height;
+
+            circleManager.Update(gameTime);
 
             base.Update(gameTime);
         }
@@ -183,14 +181,10 @@ namespace MusicVis
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.CornflowerBlue);
+            GraphicsDevice.Clear(Color.White);
 
             spriteBatch.Begin();
-            for (int i = 0; i < 220; i++)
-            {
-                leftSprites[i].DrawRect(spriteBatch);
-                rightSprites[i].DrawRect(spriteBatch);
-            }
+            circleManager.Draw(spriteBatch);
             spriteBatch.End();
 
             base.Draw(gameTime);

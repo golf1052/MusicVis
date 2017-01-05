@@ -101,6 +101,8 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Circle.cs" />
+    <Compile Include="CircleManager.cs" />
     <Compile Include="Complex.cs" />
     <Compile Include="Fft.cs" />
     <Compile Include="GamePage.xaml.cs">

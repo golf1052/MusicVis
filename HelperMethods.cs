@@ -12,6 +12,11 @@ namespace MusicVis
 {
     public static class HelperMethods
     {
+        public static double NextDouble(this Random random, double minimum, double maximum)
+        {
+            return random.NextDouble() * (maximum - minimum) + minimum;
+        }
+
         unsafe public static List<float[]> ProcessFrameOutput(AudioFrame frame)
         {
             using (AudioBuffer audioBuffer = frame.LockBuffer(AudioBufferAccessMode.Write))
