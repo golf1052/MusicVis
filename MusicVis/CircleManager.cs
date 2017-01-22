@@ -13,6 +13,7 @@ namespace MusicVis
         private Texture2D circleTexture;
 
         private Dictionary<int, List<Circle>> circles = new Dictionary<int, List<Circle>>();
+        private int capacity = 10;
 
         public CircleManager(Texture2D circleTexture)
         {
@@ -26,7 +27,7 @@ namespace MusicVis
 
         public void Spawn(int slot, float yPosition)
         {
-            if (circles[slot].Count < 10)
+            if (circles[slot].Count < capacity)
             {
                 Circle tmp = new Circle(circleTexture, (float)World.Random.NextDouble(0.005, 0.1), yPosition, slot);
                 circles[slot].Add(tmp);

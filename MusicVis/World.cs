@@ -6,16 +6,21 @@ using System.Text;
 using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.Media;
+using Windows.UI.Input;
 
 namespace MusicVis
 {
     public class World
     {
         public static Random Random;
+        public static RadialController dial;
+        public static RadialControllerConfiguration dialConfig;
 
         static World()
         {
             Random = new Random();
+            dial = RadialController.CreateForCurrentView();
+            dialConfig = RadialControllerConfiguration.GetForCurrentView();
         }
     }
 }

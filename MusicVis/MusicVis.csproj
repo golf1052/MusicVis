@@ -98,6 +98,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AdjustableMax.cs" />
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
@@ -105,6 +106,8 @@
     <Compile Include="CircleManager.cs" />
     <Compile Include="Complex.cs" />
     <Compile Include="Fft.cs" />
+    <Compile Include="Flash.cs" />
+    <Compile Include="FlashManager.cs" />
     <Compile Include="GamePage.xaml.cs">
       <DependentUpon>GamePage.xaml</DependentUpon>
     </Compile>
@@ -113,6 +116,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Sprite.cs" />
     <Compile Include="SpriteBase.cs" />
+    <Compile Include="TextItem.cs" />
     <Compile Include="World.cs" />
   </ItemGroup>
   <ItemGroup>
