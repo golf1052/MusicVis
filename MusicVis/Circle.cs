@@ -8,21 +8,11 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace MusicVis
 {
-    public class Circle
+    public class Circle : Spawnable
     {
-        private Sprite sprite;
         private float FadeRate { get; set; }
-        public bool Visible
+        public Circle(Texture2D tex, float fadeRate, float yPosition, int slot) : base(tex)
         {
-            get
-            {
-                return sprite.visible;
-            }
-        }
-        
-        public Circle(Texture2D tex, float fadeRate, float yPosition, int slot)
-        {
-            sprite = new Sprite(tex);
             FadeRate = fadeRate;
             sprite.position = new Vector2(World.Random.Next(0, Game1.WindowWidth), yPosition);
             sprite.velocity = new Vector2(0, (float)World.Random.NextDouble(-2, 0));
@@ -31,7 +21,7 @@ namespace MusicVis
             //sprite.color = Color.Lerp(Color.Red, Color.Green, slot / 220f);
         }
 
-        public void Update(GameTime gameTime)
+        public override void Update(GameTime gameTime)
         {
             sprite.alpha -= FadeRate;
             if (sprite.alpha <= 0)
@@ -44,11 +34,6 @@ namespace MusicVis
             {
                 sprite.visible = false;
             }
-        }
-
-        public void Draw(SpriteBatch spriteBatch)
-        {
-            sprite.Draw(spriteBatch);
         }
     }
 }

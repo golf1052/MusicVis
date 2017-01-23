@@ -8,19 +8,10 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace MusicVis
 {
-    public class Flash
+    public class Flash : Spawnable
     {
-        private Sprite sprite;
         private float fadeRate;
         public int slot;
-
-        public bool Visible
-        {
-            get
-            {
-                return sprite.visible;
-            }
-        }
 
         public Color Color
         {
@@ -30,9 +21,8 @@ namespace MusicVis
             }
         }
 
-        public Flash(Texture2D tex, int slot, float value, float yPosition)
+        public Flash(Texture2D tex, int slot, float value, float yPosition) : base(tex)
         {
-            sprite = new Sprite(tex);
             this.slot = slot;
             sprite.position = new Vector2(World.Random.Next(0, Game1.WindowWidth),
                 World.Random.Next((int)yPosition - 100, (int)yPosition + 100));
@@ -59,7 +49,7 @@ namespace MusicVis
             }
         }
 
-        public void Update(GameTime gameTime)
+        public override void Update(GameTime gameTime)
         {
             sprite.alpha -= fadeRate;
             if (sprite.alpha <= 0)
@@ -72,14 +62,6 @@ namespace MusicVis
             {
                 sprite.visible = false;
                 return;
-            }
-        }
-
-        public void Draw(SpriteBatch spriteBatch)
-        {
-            if (sprite.visible)
-            {
-                sprite.Draw(spriteBatch);
             }
         }
     }

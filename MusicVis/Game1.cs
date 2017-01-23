@@ -32,6 +32,9 @@ namespace MusicVis
 
         CircleManager circleManager;
         FlashManager flashManager;
+        BigCircleManager bigCircleManager;
+
+        BigFlash bigFlash;
 
         public static int WindowWidth;
         public static int WindowHeight;
@@ -40,6 +43,7 @@ namespace MusicVis
         SpriteFont debugFont;
         List<TextItem> fontList;
         List<AdjustableMax> maxList;
+        AdjustableMax averageLow;
 
         List<RadialControllerMenuItem> menuItems;
         float controlValue = 0.5f;
@@ -63,13 +67,13 @@ namespace MusicVis
 
         private void Dial_RotationChanged(RadialController sender, RadialControllerRotationChangedEventArgs args)
         {
-            if (args.RotationDeltaInDegrees > 0)
+            if (args.RotationDeltaInDegrees > 0.5f)
             {
-                controlValue += 0.05f;
+                controlValue += 0.01f;
             }
-            else if (args.RotationDeltaInDegrees < 0)
+            else if (args.RotationDeltaInDegrees < 1)
             {
-                controlValue -= 0.05f;
+                controlValue -= 0.01f;
             }
             controlValue = MathHelper.Clamp(controlValue, 0.5f, 1);
             if (controlValue == 0.5f || controlValue == 1)
@@ -92,6 +96,7 @@ namespace MusicVis
         {
             fontList = new List<TextItem>();
             maxList = new List<AdjustableMax>(220);
+            averageLow = new AdjustableMax();
             ApplicationView view = ApplicationView.GetForCurrentView();
             view.TitleBar.BackgroundColor = Windows.UI.Colors.Black;
             view.TitleBar.ButtonBackgroundColor = Windows.UI.Colors.Black;
@@ -113,6 +118,16 @@ namespace MusicVis
                 float[] leftChannel = channelData[i];
                 float[] rightChannel = channelData[i + 1];
 
+                averageLow.Value = HelperMethods.Average(leftChannel, 0, 16);
+                if (averageLow.Value >= 0.75f)
+                {
+                    bigFlash.Pump(averageLow.Value);
+                }
+                if (averageLow.Value >= 0.85f)
+                {
+                    bigCircleManager.Spawn();
+                }
+
                 for (int j = 0; j < 220; j++)
                 {
                     maxList[j].Value = leftChannel[j];
@@ -126,10 +141,10 @@ namespace MusicVis
                         int slot = j * (customWindowHeight / 220);
                         int inverseSlot = WindowHeight - slot;
                         //circleManager.Spawn(j, inverseSlot);
-                        if (maxList[j].Value >= controlValue)
-                        {
-                            flashManager.Spawn(j, maxList[j].Value, inverseSlot);
-                        }
+                        //if (maxList[j].Value >= controlValue)
+                        //{
+                        //    flashManager.Spawn(j, maxList[j].Value, inverseSlot);
+                        //}
                     }
                 }
             }
@@ -151,6 +166,8 @@ namespace MusicVis
             debugFont = Content.Load<SpriteFont>("DebugFont");
             circleManager = new CircleManager(Content.Load<Texture2D>("circle"));
             flashManager = new FlashManager(Content.Load<Texture2D>("flash"));
+            bigCircleManager = new BigCircleManager(Content.Load<Texture2D>("circle_big"));
+            bigFlash = new BigFlash(Content.Load<Texture2D>("flash_big"));
 
             var audioInputDevices = await DeviceInformation.FindAllAsync(DeviceClass.AudioCapture);
             foreach (var device in audioInputDevices)
@@ -273,6 +290,8 @@ namespace MusicVis
 
             circleManager.Update(gameTime);
             flashManager.Update(gameTime);
+            bigCircleManager.Update(gameTime);
+            bigFlash.Update(gameTime);
 
             previousKeyboardState = keyboardState;
             base.Update(gameTime);
@@ -295,6 +314,8 @@ namespace MusicVis
             spriteBatch.Begin();
             circleManager.Draw(spriteBatch);
             flashManager.Draw(spriteBatch);
+            bigCircleManager.Draw(spriteBatch);
+            bigFlash.Draw(spriteBatch);
             //foreach (var item in fontList)
             //{
             //    item.Draw(spriteBatch);
