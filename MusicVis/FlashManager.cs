@@ -14,6 +14,7 @@ namespace MusicVis
         private Texture2D flashTexture;
         private List<Flash> flashes;
         private List<int> numBeats;
+        public bool On { get; set; }
 
         public FlashManager(Texture2D flashTexture)
         {
@@ -24,22 +25,23 @@ namespace MusicVis
             {
                 numBeats.Add(0);
             }
+            On = true;
         }
 
-        public void Spawn(int slot, float value, float yPosition)
+        public void Spawn(int slot, float value, float yPosition, World.Side side)
         {
             if (value >= 0.9f)
             {
                 if (numBeats[slot] < 1)
                 {
-                    Flash tmp = new Flash(flashTexture, slot, value, yPosition);
+                    Flash tmp = new Flash(flashTexture, slot, value, yPosition, side);
                     numBeats[slot]++;
                     flashes.Add(tmp);
                 }
             }
             else
             {
-                Flash tmp = new Flash(flashTexture, slot, value, yPosition);
+                Flash tmp = new Flash(flashTexture, slot, value, yPosition, side);
                 flashes.Add(tmp);
             }
         }

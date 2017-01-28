@@ -20,9 +20,16 @@ namespace MusicVis
     /// </summary>
     public class Game1 : Game
     {
+        const string CirclesText = "Circles";
+        const string FlashesText = "Flashes";
+        const string BigCircleText = "Big Circle";
+        const string BigFlashText = "Big Flash";
+        const string ScreenFlashText = "Screen Flash";
+
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
         KeyboardState previousKeyboardState;
+        VirtualResolutionRenderer virtualResolutionRenderer;
 
         AudioGraph audioGraph;
         AudioFrameOutputNode frameOutputNode;
@@ -33,17 +40,21 @@ namespace MusicVis
         CircleManager circleManager;
         FlashManager flashManager;
         BigCircleManager bigCircleManager;
-
         BigFlash bigFlash;
+        ScreenFlashManager screenFlashManager;
+
+        Timer silenceTimer;
+        Timer balanceTimer;
 
         public static int WindowWidth;
         public static int WindowHeight;
         public static Rectangle WindowRectangle;
 
         SpriteFont debugFont;
-        List<TextItem> fontList;
-        List<AdjustableMax> maxList;
-        AdjustableMax averageLow;
+        List<AdjustableMax> maxListLeft;
+        List<AdjustableMax> maxListRight;
+        AdjustableMax averageLowLeft;
+        AdjustableMax averageLowRight;
 
         List<RadialControllerMenuItem> menuItems;
         float controlValue = 0.5f;
@@ -53,37 +64,69 @@ namespace MusicVis
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
             menuItems = new List<RadialControllerMenuItem>();
-            World.dial.RotationResolutionInDegrees = 1;
-            World.dial.UseAutomaticHapticFeedback = true;
-            RadialControllerMenuItem control = RadialControllerMenuItem.CreateFromKnownIcon("value", RadialControllerMenuKnownIcon.Scroll);
-            menuItems.Add(control);
+            RadialControllerMenuItem circleMenuItem = RadialControllerMenuItem.CreateFromKnownIcon(CirclesText, RadialControllerMenuKnownIcon.InkColor);
+            RadialControllerMenuItem flashMenuItem = RadialControllerMenuItem.CreateFromKnownIcon(FlashesText, RadialControllerMenuKnownIcon.InkColor);
+            RadialControllerMenuItem bigCircleMenuItem = RadialControllerMenuItem.CreateFromKnownIcon(BigCircleText, RadialControllerMenuKnownIcon.InkColor);
+            RadialControllerMenuItem bigFlashMenuItem = RadialControllerMenuItem.CreateFromKnownIcon(BigFlashText, RadialControllerMenuKnownIcon.InkColor);
+            RadialControllerMenuItem screenFlashMenuItem = RadialControllerMenuItem.CreateFromKnownIcon(ScreenFlashText, RadialControllerMenuKnownIcon.InkColor);
+            menuItems.Add(circleMenuItem);
+            menuItems.Add(flashMenuItem);
+            menuItems.Add(bigCircleMenuItem);
+            menuItems.Add(bigFlashMenuItem);
+            menuItems.Add(screenFlashMenuItem);
             foreach (var item in menuItems)
             {
                 World.dial.Menu.Items.Add(item);
             }
             World.dialConfig.SetDefaultMenuItems(new List<RadialControllerSystemMenuItemKind>());
             World.dial.RotationChanged += Dial_RotationChanged;
+            World.dial.ButtonClicked += Dial_ButtonClicked;
+        }
+
+        private void Dial_ButtonClicked(RadialController sender, RadialControllerButtonClickedEventArgs args)
+        {
+            var selected = World.dial.Menu.GetSelectedMenuItem();
+            if (selected.DisplayText == CirclesText)
+            {
+                circleManager.On = !circleManager.On;
+            }
+            else if (selected.DisplayText == FlashesText)
+            {
+                flashManager.On = !flashManager.On;
+            }
+            else if (selected.DisplayText == BigCircleText)
+            {
+                bigCircleManager.On = !bigCircleManager.On;
+            }
+            else if (selected.DisplayText == BigFlashText)
+            {
+                bigFlash.On = !bigFlash.On;
+            }
+            else if (selected.DisplayText == ScreenFlashText)
+            {
+                screenFlashManager.On = !screenFlashManager.On;
+            }
         }
 
         private void Dial_RotationChanged(RadialController sender, RadialControllerRotationChangedEventArgs args)
         {
-            if (args.RotationDeltaInDegrees > 0.5f)
-            {
-                controlValue += 0.01f;
-            }
-            else if (args.RotationDeltaInDegrees < 1)
-            {
-                controlValue -= 0.01f;
-            }
-            controlValue = MathHelper.Clamp(controlValue, 0.5f, 1);
-            if (controlValue == 0.5f || controlValue == 1)
-            {
-                World.dial.UseAutomaticHapticFeedback = false;
-            }
-            else
-            {
-                World.dial.UseAutomaticHapticFeedback = true;
-            }
+            //if (args.RotationDeltaInDegrees > 0.5f)
+            //{
+            //    controlValue += 0.01f;
+            //}
+            //else if (args.RotationDeltaInDegrees < 1)
+            //{
+            //    controlValue -= 0.01f;
+            //}
+            //controlValue = MathHelper.Clamp(controlValue, 0.5f, 1);
+            //if (controlValue == 0.5f || controlValue == 1)
+            //{
+            //    World.dial.UseAutomaticHapticFeedback = false;
+            //}
+            //else
+            //{
+            //    World.dial.UseAutomaticHapticFeedback = true;
+            //}
         }
 
         /// <summary>
@@ -94,60 +137,16 @@ namespace MusicVis
         /// </summary>
         protected override void Initialize()
         {
-            fontList = new List<TextItem>();
-            maxList = new List<AdjustableMax>(220);
-            averageLow = new AdjustableMax();
+            maxListLeft = new List<AdjustableMax>(220);
+            maxListRight = new List<AdjustableMax>(220);
+            averageLowLeft = new AdjustableMax();
+            averageLowRight = new AdjustableMax();
             ApplicationView view = ApplicationView.GetForCurrentView();
             view.TitleBar.BackgroundColor = Windows.UI.Colors.Black;
             view.TitleBar.ButtonBackgroundColor = Windows.UI.Colors.Black;
+            silenceTimer = new Timer(TimeSpan.FromSeconds(5), Reset, 0);
+            balanceTimer = new Timer(TimeSpan.FromMinutes(4), Reset, 0.25f);
             base.Initialize();
-        }
-
-        private void AudioGraph_UnrecoverableErrorOccurred(AudioGraph sender, AudioGraphUnrecoverableErrorOccurredEventArgs args)
-        {
-            Debug.WriteLine("UNRECOVERABLE ERRORRRRRR");
-        }
-
-        private void AudioGraph_QuantumProcessed(AudioGraph sender, object args)
-        {
-            AudioFrame audioFrame = frameOutputNode.GetFrame();
-            List<float[]> amplitudeData = HelperMethods.ProcessFrameOutput(audioFrame);
-            List<float[]> channelData = HelperMethods.GetFftData(HelperMethods.ConvertTo512(amplitudeData, audioGraph), audioGraph);
-            for (int i = 0; i < channelData.Count / 2; i++)
-            {
-                float[] leftChannel = channelData[i];
-                float[] rightChannel = channelData[i + 1];
-
-                averageLow.Value = HelperMethods.Average(leftChannel, 0, 16);
-                if (averageLow.Value >= 0.75f)
-                {
-                    bigFlash.Pump(averageLow.Value);
-                }
-                if (averageLow.Value >= 0.85f)
-                {
-                    bigCircleManager.Spawn();
-                }
-
-                for (int j = 0; j < 220; j++)
-                {
-                    maxList[j].Value = leftChannel[j];
-                    fontList[j].Text = $"{j}: {maxList[j].MinValue} {leftChannel[j].ToString()} {maxList[j].CurrentMax}";
-                    int num = 10000;
-                    int count = (int)(num * leftChannel[j]);
-                    count = MathHelper.Clamp(count, 0, 5);
-                    for (int k = 0; k < count; k++)
-                    {
-                        int customWindowHeight = (int)(WindowHeight * 1);
-                        int slot = j * (customWindowHeight / 220);
-                        int inverseSlot = WindowHeight - slot;
-                        //circleManager.Spawn(j, inverseSlot);
-                        //if (maxList[j].Value >= controlValue)
-                        //{
-                        //    flashManager.Spawn(j, maxList[j].Value, inverseSlot);
-                        //}
-                    }
-                }
-            }
         }
 
         /// <summary>
@@ -159,8 +158,9 @@ namespace MusicVis
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
-            WindowWidth = graphics.GraphicsDevice.Viewport.Width;
-            WindowHeight = graphics.GraphicsDevice.Viewport.Height;
+            virtualResolutionRenderer = new VirtualResolutionRenderer(graphics, new Size(3000, 2000));
+            WindowWidth = (int)virtualResolutionRenderer.VirtualResolution.Width;
+            WindowHeight = (int)virtualResolutionRenderer.VirtualResolution.Height;
             WindowRectangle = new Rectangle(0, 0, WindowWidth, WindowHeight);
 
             debugFont = Content.Load<SpriteFont>("DebugFont");
@@ -168,6 +168,7 @@ namespace MusicVis
             flashManager = new FlashManager(Content.Load<Texture2D>("flash"));
             bigCircleManager = new BigCircleManager(Content.Load<Texture2D>("circle_big"));
             bigFlash = new BigFlash(Content.Load<Texture2D>("flash_big"));
+            screenFlashManager = new ScreenFlashManager(graphics);
 
             var audioInputDevices = await DeviceInformation.FindAllAsync(DeviceClass.AudioCapture);
             foreach (var device in audioInputDevices)
@@ -222,30 +223,8 @@ namespace MusicVis
 
             for (int i = 0; i < 220; i++)
             {
-                TextItem tmp = new TextItem(debugFont, "0");
-                tmp.color = Color.Black;
-                if (i == 0)
-                {
-                    tmp.position = new Vector2(10, 50);
-                }
-                else if (i == 55)
-                {
-                    tmp.position = new Vector2(500, 50);
-                }
-                else if (i == 110)
-                {
-                    tmp.position = new Vector2(1000, 50);
-                }
-                else if (i == 165)
-                {
-                    tmp.position = new Vector2(1500, 50);
-                }
-                else
-                {
-                    tmp.PositionBelow(fontList[i - 1], 0);
-                }
-                fontList.Add(tmp);
-                maxList.Add(new AdjustableMax());
+                maxListLeft.Add(new AdjustableMax());
+                maxListRight.Add(new AdjustableMax());
             }
 
             audioGraph.QuantumProcessed += AudioGraph_QuantumProcessed;
@@ -263,6 +242,96 @@ namespace MusicVis
         protected override void UnloadContent()
         {
             // TODO: Unload any non ContentManager content here
+        }
+
+        private void AudioGraph_UnrecoverableErrorOccurred(AudioGraph sender, AudioGraphUnrecoverableErrorOccurredEventArgs args)
+        {
+            Debug.WriteLine("UNRECOVERABLE ERRORRRRRR");
+        }
+
+        private void AudioGraph_QuantumProcessed(AudioGraph sender, object args)
+        {
+            AudioFrame audioFrame = frameOutputNode.GetFrame();
+            List<float[]> amplitudeData = HelperMethods.ProcessFrameOutput(audioFrame);
+            List<float[]> channelData = HelperMethods.GetFftData(HelperMethods.ConvertTo512(amplitudeData, audioGraph), audioGraph);
+            for (int i = 0; i < channelData.Count / 2; i++)
+            {
+                float[] leftChannel = channelData[i];
+                float[] rightChannel = channelData[i + 1];
+
+                for (int j = 0; j < 220; j++)
+                {
+                    maxListLeft[j].Value = leftChannel[j];
+                    maxListRight[j].Value = rightChannel[j];
+
+                    int customWindowHeight = (int)(WindowHeight * 1);
+                    int slot = j * (customWindowHeight / 220);
+                    int inverseSlot = WindowHeight - slot;
+
+                    if (circleManager.On)
+                    {
+                        if (maxListLeft[j].Value >= 0.25f)
+                        {
+                            circleManager.Spawn(maxListLeft[j].Value, j, inverseSlot, World.Side.Left);
+                        }
+                        if (maxListRight[j].Value >= 0.25f)
+                        {
+                            circleManager.Spawn(maxListRight[j].Value, j, inverseSlot, World.Side.Right);
+                        }
+                    }
+
+                    if (flashManager.On)
+                    {
+                        if (maxListLeft[j].Value >= controlValue)
+                        {
+                            flashManager.Spawn(j, maxListLeft[j].Value, inverseSlot, World.Side.Left);
+                        }
+                        if (maxListRight[j].Value >= controlValue)
+                        {
+                            flashManager.Spawn(j, maxListRight[j].Value, inverseSlot, World.Side.Right);
+                        }
+                    }
+                }
+
+                averageLowLeft.Value = HelperMethods.Average(leftChannel, 0, 16);
+                averageLowRight.Value = HelperMethods.Average(rightChannel, 0, 16);
+                if (CheckAverageValue(0.01f))
+                {
+                    silenceTimer.Reset();
+                }
+
+                if (bigFlash.On)
+                {
+                    if (CheckAverageValue(0.70f))
+                    {
+                        bigFlash.Pump(GetAverageValue(averageLowLeft.Value, averageLowRight.Value));
+                    }
+                }
+                if (bigCircleManager.On)
+                {
+                    if (CheckAverageValue(0.85f))
+                    {
+                        bigCircleManager.Spawn();
+                    }
+                }
+                if (screenFlashManager.On)
+                {
+                    if (CheckAverageValue(0.7f))
+                    {
+                        screenFlashManager.Flash(GetAverageValue(averageLowLeft.Value, averageLowRight.Value));
+                    }
+                }
+            }
+        }
+
+        private bool CheckAverageValue(float value)
+        {
+            return averageLowLeft.Value >= value && averageLowRight.Value >= value;
+        }
+
+        private float GetAverageValue(float leftValue, float rightValue)
+        {
+            return (leftValue + rightValue) / 2f;
         }
 
         /// <summary>
@@ -285,13 +354,14 @@ namespace MusicVis
                 graphics.IsFullScreen = false;
                 graphics.ApplyChanges();
             }
-            WindowWidth = graphics.GraphicsDevice.Viewport.Width;
-            WindowHeight = graphics.GraphicsDevice.Viewport.Height;
 
+            silenceTimer.Update(gameTime);
+            balanceTimer.Update(gameTime);
             circleManager.Update(gameTime);
             flashManager.Update(gameTime);
             bigCircleManager.Update(gameTime);
             bigFlash.Update(gameTime);
+            screenFlashManager.Update(gameTime);
 
             previousKeyboardState = keyboardState;
             base.Update(gameTime);
@@ -311,18 +381,32 @@ namespace MusicVis
         {
             GraphicsDevice.Clear(Color.Black);
 
-            spriteBatch.Begin();
+            virtualResolutionRenderer.BeginDraw();
+            spriteBatch.Begin(SpriteSortMode.Deferred,
+                null, null, null, null, null,
+                virtualResolutionRenderer.GetTransformationMatrix());
             circleManager.Draw(spriteBatch);
             flashManager.Draw(spriteBatch);
             bigCircleManager.Draw(spriteBatch);
             bigFlash.Draw(spriteBatch);
-            //foreach (var item in fontList)
-            //{
-            //    item.Draw(spriteBatch);
-            //}
+            screenFlashManager.Draw(spriteBatch);
             spriteBatch.End();
 
             base.Draw(gameTime);
+        }
+
+        private void Reset()
+        {
+            Reset(0);
+        }
+
+        private void Reset(float percent)
+        {
+            for (int i = 0; i < 220; i++)
+            {
+                maxListLeft[i].Reset(percent);
+                maxListRight[i].Reset(percent);
+            }
         }
     }
 }

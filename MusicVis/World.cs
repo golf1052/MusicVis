@@ -12,6 +12,12 @@ namespace MusicVis
 {
     public class World
     {
+        public enum Side
+        {
+            Left,
+            Right
+        }
+
         public static Random Random;
         public static RadialController dial;
         public static RadialControllerConfiguration dialConfig;

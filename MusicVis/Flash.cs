@@ -21,10 +21,19 @@ namespace MusicVis
             }
         }
 
-        public Flash(Texture2D tex, int slot, float value, float yPosition) : base(tex)
+        public Flash(Texture2D tex, int slot, float value, float yPosition, World.Side side) : base(tex)
         {
             this.slot = slot;
-            sprite.position = new Vector2(World.Random.Next(0, Game1.WindowWidth),
+            float xPos;
+            if (side == World.Side.Left)
+            {
+                xPos = World.Random.Next(0, Game1.WindowWidth / 2);
+            }
+            else
+            {
+                xPos = World.Random.Next(Game1.WindowWidth / 2, Game1.WindowWidth);
+            }
+            sprite.position = new Vector2(xPos,
                 World.Random.Next((int)yPosition - 100, (int)yPosition + 100));
             //sprite.velocity = new Vector2((float)World.Random.NextDouble(0.1, 5), 0);
             sprite.scale = 5 * value;

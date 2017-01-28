@@ -12,11 +12,13 @@ namespace MusicVis
     {
         private Texture2D circleTexture;
         private List<BigCircle> circles;
+        public bool On { get; set; }
 
         public BigCircleManager(Texture2D tex)
         {
             circleTexture = tex;
             circles = new List<BigCircle>();
+            On = true;
         }
 
         public void Spawn()

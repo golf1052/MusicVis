@@ -44,7 +44,12 @@
 
         public void Reset()
         {
-            CurrentMax = 0;
+            Reset(0);
+        }
+
+        public void Reset(float percent)
+        {
+            CurrentMax *= percent;
             value = 0;
         }
     }

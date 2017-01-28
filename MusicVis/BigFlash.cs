@@ -12,11 +12,13 @@ namespace MusicVis
     {
         private const float MinScale = 0.5f;
         private const float MaxScale = 2.0f;
+        public bool On { get; set; }
 
         public BigFlash(Texture2D tex) : base(tex)
         {
             sprite.position = new Vector2(Game1.WindowWidth / 2, Game1.WindowHeight / 2);
             sprite.scale = 0.5f;
+            On = true;
         }
 
         public void Pump(float value)
@@ -49,6 +51,14 @@ namespace MusicVis
             }
             sprite.scale = MathHelper.Clamp(sprite.scale, 0.5f, 2);
             sprite.Update();
+        }
+
+        public override void Draw(SpriteBatch spriteBatch)
+        {
+            if (On)
+            {
+                base.Draw(spriteBatch);
+            }
         }
     }
 }

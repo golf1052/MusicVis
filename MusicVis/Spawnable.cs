@@ -26,7 +26,7 @@ namespace MusicVis
 
         public abstract void Update(GameTime gameTime);
 
-        public void Draw(SpriteBatch spriteBatch)
+        public virtual void Draw(SpriteBatch spriteBatch)
         {
             if (sprite.visible)
             {
