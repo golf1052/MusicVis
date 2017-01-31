@@ -145,7 +145,7 @@ namespace MusicVis
             view.TitleBar.BackgroundColor = Windows.UI.Colors.Black;
             view.TitleBar.ButtonBackgroundColor = Windows.UI.Colors.Black;
             silenceTimer = new Timer(TimeSpan.FromSeconds(5), Reset, 0);
-            balanceTimer = new Timer(TimeSpan.FromMinutes(4), Reset, 0.25f);
+            balanceTimer = new Timer(TimeSpan.FromMinutes(2), Reset, 0.1f);
             base.Initialize();
         }
 
@@ -164,7 +164,15 @@ namespace MusicVis
             WindowRectangle = new Rectangle(0, 0, WindowWidth, WindowHeight);
 
             debugFont = Content.Load<SpriteFont>("DebugFont");
-            circleManager = new CircleManager(Content.Load<Texture2D>("circle"));
+            List<Texture2D> textures = new List<Texture2D>(new[]
+            {
+                //Content.Load<Texture2D>("circle"),
+                //Content.Load<Texture2D>("square"),
+                //Content.Load<Texture2D>("triangle"),
+                //Content.Load<Texture2D>("star"),
+                Content.Load<Texture2D>("heart")
+            });
+            circleManager = new CircleManager(textures);
             flashManager = new FlashManager(Content.Load<Texture2D>("flash"));
             bigCircleManager = new BigCircleManager(Content.Load<Texture2D>("circle_big"));
             bigFlash = new BigFlash(Content.Load<Texture2D>("flash_big"));

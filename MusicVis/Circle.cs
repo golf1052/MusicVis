@@ -26,8 +26,8 @@ namespace MusicVis
             sprite.position = new Vector2(xPos, yPosition);
             sprite.velocity = new Vector2(0, (float)World.Random.NextDouble(-2, 0));
             sprite.color = new Color(World.Random.Next(0, 255), World.Random.Next(0, 255), World.Random.Next(0, 255));
-            sprite.scale = 2;
-            //sprite.color = Color.Lerp(Color.Red, Color.Green, slot / 220f);
+            sprite.rotation = World.Random.Next(0, 360);
+            sprite.color = Color.Lerp(Color.Red, Color.White, slot / 220f);
         }
 
         public override void Update(GameTime gameTime)

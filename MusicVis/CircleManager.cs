@@ -10,16 +10,16 @@ namespace MusicVis
 {
     public class CircleManager
     {
-        private Texture2D circleTexture;
+        private List<Texture2D> textures;
 
         private Dictionary<int, List<Circle>> leftCircles = new Dictionary<int, List<Circle>>();
         private Dictionary<int, List<Circle>> rightCircles = new Dictionary<int, List<Circle>>();
         private int capacity = 10;
         public bool On { get; set; }
 
-        public CircleManager(Texture2D circleTexture)
+        public CircleManager(List<Texture2D> textures)
         {
-            this.circleTexture = circleTexture;
+            this.textures = textures;
             leftCircles = new Dictionary<int, List<Circle>>();
             rightCircles = new Dictionary<int, List<Circle>>();
             for (int i = 0; i < 220; i++)
@@ -34,14 +34,15 @@ namespace MusicVis
         {
             for (int i = 0; i < value * 3; i++)
             {
+                int randomTexture = World.Random.Next(0, textures.Count);
                 if (side == World.Side.Left && leftCircles[slot].Count < capacity)
                 {
-                    Circle tmp = new Circle(circleTexture, yPosition, slot, side);
+                    Circle tmp = new Circle(textures[randomTexture], yPosition, slot, side);
                     leftCircles[slot].Add(tmp);
                 }
                 else if (side == World.Side.Right && rightCircles[slot].Count < capacity)
                 {
-                    Circle tmp = new Circle(circleTexture, yPosition, slot, side);
+                    Circle tmp = new Circle(textures[randomTexture], yPosition, slot, side);
                     rightCircles[slot].Add(tmp);
                 }
             }
