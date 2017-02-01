@@ -20,11 +20,14 @@ namespace MusicVis
     /// </summary>
     public class Game1 : Game
     {
-        const string CirclesText = "Circles";
+        const string ShapesText = "Shapes";
+        const string ValentinesText = "Valentines Colors";
+        const string OnlyHeartsText = "Only Hearts";
         const string FlashesText = "Flashes";
         const string BigCircleText = "Big Circle";
         const string BigFlashText = "Big Flash";
         const string ScreenFlashText = "Screen Flash";
+        const string ResetText = "Reset";
 
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
@@ -51,12 +54,16 @@ namespace MusicVis
         public static Rectangle WindowRectangle;
 
         SpriteFont debugFont;
+        SpriteFont fadeOutFont;
+
         List<AdjustableMax> maxListLeft;
         List<AdjustableMax> maxListRight;
         AdjustableMax averageLowLeft;
         AdjustableMax averageLowRight;
 
+        FadeOutTextManager fadeOutTextManager;
         List<RadialControllerMenuItem> menuItems;
+        int selectedItem;
         float controlValue = 0.5f;
 
         public Game1()
@@ -64,16 +71,22 @@ namespace MusicVis
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
             menuItems = new List<RadialControllerMenuItem>();
-            RadialControllerMenuItem circleMenuItem = RadialControllerMenuItem.CreateFromKnownIcon(CirclesText, RadialControllerMenuKnownIcon.InkColor);
+            RadialControllerMenuItem circleMenuItem = RadialControllerMenuItem.CreateFromKnownIcon(ShapesText, RadialControllerMenuKnownIcon.InkColor);
+            RadialControllerMenuItem valentinesMenuItem = RadialControllerMenuItem.CreateFromKnownIcon(ValentinesText, RadialControllerMenuKnownIcon.InkColor);
+            RadialControllerMenuItem onlyHeartsMenuItem = RadialControllerMenuItem.CreateFromKnownIcon(OnlyHeartsText, RadialControllerMenuKnownIcon.InkColor);
             RadialControllerMenuItem flashMenuItem = RadialControllerMenuItem.CreateFromKnownIcon(FlashesText, RadialControllerMenuKnownIcon.InkColor);
             RadialControllerMenuItem bigCircleMenuItem = RadialControllerMenuItem.CreateFromKnownIcon(BigCircleText, RadialControllerMenuKnownIcon.InkColor);
             RadialControllerMenuItem bigFlashMenuItem = RadialControllerMenuItem.CreateFromKnownIcon(BigFlashText, RadialControllerMenuKnownIcon.InkColor);
             RadialControllerMenuItem screenFlashMenuItem = RadialControllerMenuItem.CreateFromKnownIcon(ScreenFlashText, RadialControllerMenuKnownIcon.InkColor);
+            RadialControllerMenuItem resetMenuItem = RadialControllerMenuItem.CreateFromKnownIcon(ResetText, RadialControllerMenuKnownIcon.InkColor);
             menuItems.Add(circleMenuItem);
+            menuItems.Add(valentinesMenuItem);
+            menuItems.Add(onlyHeartsMenuItem);
             menuItems.Add(flashMenuItem);
             menuItems.Add(bigCircleMenuItem);
             menuItems.Add(bigFlashMenuItem);
             menuItems.Add(screenFlashMenuItem);
+            menuItems.Add(resetMenuItem);
             foreach (var item in menuItems)
             {
                 World.dial.Menu.Items.Add(item);
@@ -86,9 +99,17 @@ namespace MusicVis
         private void Dial_ButtonClicked(RadialController sender, RadialControllerButtonClickedEventArgs args)
         {
             var selected = World.dial.Menu.GetSelectedMenuItem();
-            if (selected.DisplayText == CirclesText)
+            if (selected.DisplayText == ShapesText)
             {
                 circleManager.On = !circleManager.On;
+            }
+            else if (selected.DisplayText == ValentinesText)
+            {
+                circleManager.ValentinesOn = !circleManager.ValentinesOn;
+            }
+            else if (selected.DisplayText == OnlyHeartsText)
+            {
+                circleManager.OnlyHeartsOn = !circleManager.OnlyHeartsOn;
             }
             else if (selected.DisplayText == FlashesText)
             {
@@ -106,27 +127,35 @@ namespace MusicVis
             {
                 screenFlashManager.On = !screenFlashManager.On;
             }
+            else if (selected.DisplayText == ResetText)
+            {
+                Reset();
+            }
         }
 
         private void Dial_RotationChanged(RadialController sender, RadialControllerRotationChangedEventArgs args)
         {
-            //if (args.RotationDeltaInDegrees > 0.5f)
-            //{
-            //    controlValue += 0.01f;
-            //}
-            //else if (args.RotationDeltaInDegrees < 1)
-            //{
-            //    controlValue -= 0.01f;
-            //}
-            //controlValue = MathHelper.Clamp(controlValue, 0.5f, 1);
-            //if (controlValue == 0.5f || controlValue == 1)
-            //{
-            //    World.dial.UseAutomaticHapticFeedback = false;
-            //}
-            //else
-            //{
-            //    World.dial.UseAutomaticHapticFeedback = true;
-            //}
+            if (args.RotationDeltaInDegrees > 0)
+            {
+                selectedItem++;
+            }
+            else if (args.RotationDeltaInDegrees < 0)
+            {
+                selectedItem--;
+            }
+
+            if (selectedItem < 0)
+            {
+                selectedItem = menuItems.Count - 1;
+            }
+            else if (selectedItem >= menuItems.Count)
+            {
+                selectedItem = 0;
+            }
+
+            var item = menuItems[selectedItem];
+            World.dial.Menu.SelectMenuItem(item);
+            fadeOutTextManager.Create(item.DisplayText);
         }
 
         /// <summary>
@@ -164,12 +193,14 @@ namespace MusicVis
             WindowRectangle = new Rectangle(0, 0, WindowWidth, WindowHeight);
 
             debugFont = Content.Load<SpriteFont>("DebugFont");
+            fadeOutFont = Content.Load<SpriteFont>("FadeOutFont");
+
             List<Texture2D> textures = new List<Texture2D>(new[]
             {
-                //Content.Load<Texture2D>("circle"),
-                //Content.Load<Texture2D>("square"),
-                //Content.Load<Texture2D>("triangle"),
-                //Content.Load<Texture2D>("star"),
+                Content.Load<Texture2D>("circle"),
+                Content.Load<Texture2D>("square"),
+                Content.Load<Texture2D>("triangle"),
+                Content.Load<Texture2D>("star"),
                 Content.Load<Texture2D>("heart")
             });
             circleManager = new CircleManager(textures);
@@ -177,6 +208,7 @@ namespace MusicVis
             bigCircleManager = new BigCircleManager(Content.Load<Texture2D>("circle_big"));
             bigFlash = new BigFlash(Content.Load<Texture2D>("flash_big"));
             screenFlashManager = new ScreenFlashManager(graphics);
+            fadeOutTextManager = new FadeOutTextManager(fadeOutFont);
 
             var audioInputDevices = await DeviceInformation.FindAllAsync(DeviceClass.AudioCapture);
             foreach (var device in audioInputDevices)
@@ -370,6 +402,7 @@ namespace MusicVis
             bigCircleManager.Update(gameTime);
             bigFlash.Update(gameTime);
             screenFlashManager.Update(gameTime);
+            fadeOutTextManager.Update();
 
             previousKeyboardState = keyboardState;
             base.Update(gameTime);
@@ -398,6 +431,7 @@ namespace MusicVis
             bigCircleManager.Draw(spriteBatch);
             bigFlash.Draw(spriteBatch);
             screenFlashManager.Draw(spriteBatch);
+            fadeOutTextManager.Draw(spriteBatch);
             spriteBatch.End();
 
             base.Draw(gameTime);

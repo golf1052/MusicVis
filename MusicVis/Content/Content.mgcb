@@ -115,3 +115,9 @@
 /processorParam:TextureFormat=Color
 /build:triangle.png
 
+#begin FadeOutFont.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:TextureFormat=Compressed
+/build:FadeOutFont.spritefont
+

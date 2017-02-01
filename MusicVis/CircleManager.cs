@@ -16,6 +16,8 @@ namespace MusicVis
         private Dictionary<int, List<Circle>> rightCircles = new Dictionary<int, List<Circle>>();
         private int capacity = 10;
         public bool On { get; set; }
+        public bool ValentinesOn { get; set; }
+        public bool OnlyHeartsOn { get; set; }
 
         public CircleManager(List<Texture2D> textures)
         {
@@ -28,22 +30,39 @@ namespace MusicVis
                 rightCircles.Add(i, new List<Circle>(10));
             }
             On = false;
+            ValentinesOn = false;
+            OnlyHeartsOn = false;
         }
 
         public void Spawn(float value, int slot, float yPosition, World.Side side)
         {
             for (int i = 0; i < value * 3; i++)
             {
-                int randomTexture = World.Random.Next(0, textures.Count);
-                if (side == World.Side.Left && leftCircles[slot].Count < capacity)
+                int randomTexture;
+                if (!OnlyHeartsOn)
                 {
-                    Circle tmp = new Circle(textures[randomTexture], yPosition, slot, side);
-                    leftCircles[slot].Add(tmp);
+                    randomTexture = World.Random.Next(0, textures.Count);
                 }
-                else if (side == World.Side.Right && rightCircles[slot].Count < capacity)
+                else
                 {
-                    Circle tmp = new Circle(textures[randomTexture], yPosition, slot, side);
-                    rightCircles[slot].Add(tmp);
+                    randomTexture = textures.Count - 1;
+                }
+
+                try
+                {
+                    if (side == World.Side.Left && leftCircles[slot].Count < capacity)
+                    {
+                        Circle tmp = new Circle(textures[randomTexture], yPosition, slot, side, ValentinesOn);
+                        leftCircles[slot].Add(tmp);
+                    }
+                    else if (side == World.Side.Right && rightCircles[slot].Count < capacity)
+                    {
+                        Circle tmp = new Circle(textures[randomTexture], yPosition, slot, side, ValentinesOn);
+                        rightCircles[slot].Add(tmp);
+                    }
+                }
+                catch (Exception ex)
+                {
                 }
             }
         }

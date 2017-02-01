@@ -11,7 +11,11 @@ namespace MusicVis
     public class Circle : Spawnable
     {
         private float FadeRate { get; set; }
-        public Circle(Texture2D tex, float yPosition, int slot, World.Side side) : base(tex)
+        public Circle(Texture2D tex, float yPosition, int slot, World.Side side) : this(tex, yPosition, slot, side, false)
+        {
+        }
+
+        public Circle(Texture2D tex, float yPosition, int slot, World.Side side, bool valentines) : base(tex)
         {
             FadeRate = (float)World.Random.NextDouble(0.005, 0.1);
             float xPos;
@@ -25,9 +29,15 @@ namespace MusicVis
             }
             sprite.position = new Vector2(xPos, yPosition);
             sprite.velocity = new Vector2(0, (float)World.Random.NextDouble(-2, 0));
-            sprite.color = new Color(World.Random.Next(0, 255), World.Random.Next(0, 255), World.Random.Next(0, 255));
             sprite.rotation = World.Random.Next(0, 360);
-            sprite.color = Color.Lerp(Color.Red, Color.White, slot / 220f);
+            if (valentines)
+            {
+                sprite.color = Color.Lerp(Color.Red, Color.White, slot / 220f);
+            }
+            else
+            {
+                sprite.color = new Color(World.Random.Next(0, 255), World.Random.Next(0, 255), World.Random.Next(0, 255));
+            }
         }
 
         public override void Update(GameTime gameTime)

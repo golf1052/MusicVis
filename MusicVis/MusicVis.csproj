@@ -108,6 +108,8 @@
     <Compile Include="Circle.cs" />
     <Compile Include="CircleManager.cs" />
     <Compile Include="Complex.cs" />
+    <Compile Include="FadeOutText.cs" />
+    <Compile Include="FadeOutTextManager.cs" />
     <Compile Include="Fft.cs" />
     <Compile Include="Flash.cs" />
     <Compile Include="FlashManager.cs" />
