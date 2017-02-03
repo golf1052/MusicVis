@@ -84,20 +84,26 @@ namespace MusicVis
         {
             for (int i = 0; i < circle.Value.Count; i++)
             {
-                if (circle.Value[i] != null)
+                try
                 {
-                    circle.Value[i].Update(gameTime);
-                    if (!circle.Value[i].Visible)
+                    if (circle.Value[i] != null)
                     {
-                        try
+                        circle.Value[i].Update(gameTime);
+                        if (!circle.Value[i].Visible)
                         {
-                            circle.Value.RemoveAt(i);
-                            i--;
-                        }
-                        catch (Exception e)
-                        {
+                            try
+                            {
+                                circle.Value.RemoveAt(i);
+                                i--;
+                            }
+                            catch (Exception ex)
+                            {
+                            }
                         }
                     }
+                }
+                catch (Exception ex)
+                {
                 }
             }
         }
@@ -119,9 +125,15 @@ namespace MusicVis
         {
             for (int i = 0; i < circle.Value.Count; i++)
             {
-                if (circle.Value[i] != null)
+                try
                 {
-                    circle.Value[i].Draw(spriteBatch);
+                    if (circle.Value[i] != null)
+                    {
+                        circle.Value[i].Draw(spriteBatch);
+                    }
+                }
+                catch (Exception ex)
+                {
                 }
             }
         }

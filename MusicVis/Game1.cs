@@ -187,7 +187,7 @@ namespace MusicVis
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
-            virtualResolutionRenderer = new VirtualResolutionRenderer(graphics, new Size(3000, 2000));
+            virtualResolutionRenderer = new VirtualResolutionRenderer(graphics, new Size(2000 * (16f/9f), 2000));
             WindowWidth = (int)virtualResolutionRenderer.VirtualResolution.Width;
             WindowHeight = (int)virtualResolutionRenderer.VirtualResolution.Height;
             WindowRectangle = new Rectangle(0, 0, WindowWidth, WindowHeight);
