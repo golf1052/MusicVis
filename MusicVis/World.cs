@@ -18,13 +18,24 @@ namespace MusicVis
             Right
         }
 
-        public static Random Random;
+        private static object _lock = new object();
+        private static Random random;
+        public static Random Random
+        {
+            get
+            {
+                lock (_lock)
+                {
+                    return random;
+                }
+            }
+        }
         public static RadialController dial;
         public static RadialControllerConfiguration dialConfig;
 
         static World()
         {
-            Random = new Random();
+            random = new Random();
             dial = RadialController.CreateForCurrentView();
             dialConfig = RadialControllerConfiguration.GetForCurrentView();
         }

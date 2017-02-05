@@ -14,7 +14,7 @@ namespace MusicVis
 
         private Dictionary<int, List<Circle>> leftCircles = new Dictionary<int, List<Circle>>();
         private Dictionary<int, List<Circle>> rightCircles = new Dictionary<int, List<Circle>>();
-        private int capacity = 10;
+        private int capacity = 5;
         public bool On { get; set; }
         public bool ValentinesOn { get; set; }
         public bool OnlyHeartsOn { get; set; }
@@ -26,8 +26,8 @@ namespace MusicVis
             rightCircles = new Dictionary<int, List<Circle>>();
             for (int i = 0; i < 220; i++)
             {
-                leftCircles.Add(i, new List<Circle>(10));
-                rightCircles.Add(i, new List<Circle>(10));
+                leftCircles.Add(i, new List<Circle>(5));
+                rightCircles.Add(i, new List<Circle>(5));
             }
             On = false;
             ValentinesOn = false;
@@ -36,7 +36,7 @@ namespace MusicVis
 
         public void Spawn(float value, int slot, float yPosition, World.Side side)
         {
-            for (int i = 0; i < value * 3; i++)
+            for (int i = 0; i < value * 1; i++)
             {
                 int randomTexture;
                 if (!OnlyHeartsOn)
