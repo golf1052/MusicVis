@@ -20,7 +20,7 @@ namespace MusicVis
         {
             sprite.position = new Vector2(Game1.WindowWidth / 2, Game1.WindowHeight / 2);
             sprite.scale = SpawnScale;
-            scaleRate = 0.01f;
+            scaleRate = 0.05f;
             fadeRate = (float)World.Random.NextDouble(0.003, 0.009);
             //int randomColor = World.Random.Next(0, 4);
             //if (randomColor == 0)

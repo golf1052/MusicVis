@@ -349,14 +349,14 @@ namespace MusicVis
                 }
                 if (bigCircleManager.On)
                 {
-                    if (CheckAverageValue(0.85f))
+                    if (CheckAverageValue(0.7f))
                     {
                         bigCircleManager.Spawn();
                     }
                 }
                 if (screenFlashManager.On)
                 {
-                    if (CheckAverageValue(0.7f))
+                    if (CheckAverageValue(0.8f))
                     {
                         screenFlashManager.Flash(GetAverageValue(averageLowLeft.Value, averageLowRight.Value));
                     }
