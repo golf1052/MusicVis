@@ -103,30 +103,37 @@ namespace MusicVis
             if (selected.DisplayText == ShapesText)
             {
                 circleManager.On = !circleManager.On;
+                fadeOutTextManager.CreateState(circleManager.On);
             }
             else if (selected.DisplayText == ValentinesText)
             {
                 circleManager.ValentinesOn = !circleManager.ValentinesOn;
+                fadeOutTextManager.CreateState(circleManager.ValentinesOn);
             }
             else if (selected.DisplayText == OnlyHeartsText)
             {
                 circleManager.OnlyHeartsOn = !circleManager.OnlyHeartsOn;
+                fadeOutTextManager.CreateState(circleManager.OnlyHeartsOn);
             }
             else if (selected.DisplayText == FlashesText)
             {
                 flashManager.On = !flashManager.On;
+                fadeOutTextManager.CreateState(flashManager.On);
             }
             else if (selected.DisplayText == BigCircleText)
             {
                 bigCircleManager.On = !bigCircleManager.On;
+                fadeOutTextManager.CreateState(bigCircleManager.On);
             }
             else if (selected.DisplayText == BigFlashText)
             {
                 bigFlash.On = !bigFlash.On;
+                fadeOutTextManager.CreateState(bigFlash.On);
             }
             else if (selected.DisplayText == ScreenFlashText)
             {
                 screenFlashManager.On = !screenFlashManager.On;
+                fadeOutTextManager.CreateState(screenFlashManager.On);
             }
             else if (selected.DisplayText == ResetText)
             {

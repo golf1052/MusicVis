@@ -25,6 +25,15 @@ namespace MusicVis
             texts.Add(tmp);
         }
 
+        public void CreateState(bool state)
+        {
+            string text = state ? "On" : "Off";
+            Vector2 position = new Vector2(Game1.WindowWidth - spriteFont.MeasureString(text).X - 32,
+                Game1.WindowHeight - spriteFont.MeasureString(text).Y - 32);
+            FadeOutText tmp = new FadeOutText(position, spriteFont, text);
+            texts.Add(tmp);
+        }
+
         public void Update()
         {
             for (int i = 0; i < texts.Count; i++)

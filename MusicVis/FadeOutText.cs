@@ -10,9 +10,14 @@ namespace MusicVis
 {
     public class FadeOutText : TextItem
     {
-        public FadeOutText(SpriteFont loadedFont, string spriteText = "") : base(loadedFont, spriteText)
+        public FadeOutText(SpriteFont loadedFont, string spriteText = "")
+            : this(new Vector2(32, Game1.WindowHeight - loadedFont.MeasureString(spriteText).Y - 32), loadedFont, spriteText)
         {
-            position = new Vector2(32, Game1.WindowHeight - loadedFont.MeasureString(spriteText).Y - 32);
+        }
+
+        public FadeOutText(Vector2 position, SpriteFont loadedFont, string spriteText = "") : base(loadedFont, spriteText)
+        {
+            this.position = position;
             velocity = new Vector2(0, -0.5f);
             origin = Vector2.Zero;
         }
