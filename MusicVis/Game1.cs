@@ -45,6 +45,7 @@ namespace MusicVis
         BigCircleManager bigCircleManager;
         BigFlash bigFlash;
         ScreenFlashManager screenFlashManager;
+        LineManager lineManager;
 
         Timer silenceTimer;
         Timer balanceTimer;
@@ -208,6 +209,7 @@ namespace MusicVis
             bigCircleManager = new BigCircleManager(Content.Load<Texture2D>("circle_big"));
             bigFlash = new BigFlash(Content.Load<Texture2D>("flash_big"));
             screenFlashManager = new ScreenFlashManager(graphics);
+            lineManager = new LineManager(graphics);
             fadeOutTextManager = new FadeOutTextManager(fadeOutFont);
 
             var audioInputDevices = await DeviceInformation.FindAllAsync(DeviceClass.AudioCapture);
@@ -356,7 +358,7 @@ namespace MusicVis
                 }
                 if (screenFlashManager.On)
                 {
-                    if (CheckAverageValue(0.8f))
+                    if (CheckAverageValue(0.7f))
                     {
                         screenFlashManager.Flash(GetAverageValue(averageLowLeft.Value, averageLowRight.Value));
                     }
@@ -402,6 +404,7 @@ namespace MusicVis
             bigCircleManager.Update(gameTime);
             bigFlash.Update(gameTime);
             screenFlashManager.Update(gameTime);
+            //lineManager.Update(gameTime);
             fadeOutTextManager.Update();
 
             previousKeyboardState = keyboardState;
@@ -431,6 +434,7 @@ namespace MusicVis
             bigCircleManager.Draw(spriteBatch);
             bigFlash.Draw(spriteBatch);
             screenFlashManager.Draw(spriteBatch);
+            //lineManager.Draw(spriteBatch);
             fadeOutTextManager.Draw(spriteBatch);
             spriteBatch.End();
 
