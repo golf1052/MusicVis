@@ -18,16 +18,40 @@ namespace MusicVis
             Right
         }
 
-        private static object _lock = new object();
         private static Random random;
+        private static Queue<int> lastRandomNumbers;
         public static Random Random
         {
             get
             {
-                lock (_lock)
+                if (lastRandomNumbers.Count < 5)
                 {
-                    return random;
+                    lastRandomNumbers.Enqueue(random.Next(0, 100));
                 }
+                else if (lastRandomNumbers.Count == 5)
+                {
+                    bool allNumbers0 = true;
+                    foreach (var number in lastRandomNumbers)
+                    {
+                        if (number != 0)
+                        {
+                            allNumbers0 = false;
+                            break;
+                        }
+                    }
+
+                    if (allNumbers0)
+                    {
+                        lastRandomNumbers.Clear();
+                        random = new Random();
+                    }
+                    else
+                    {
+                        lastRandomNumbers.Dequeue();
+                        lastRandomNumbers.Enqueue(random.Next(0, 100));
+                    }
+                }
+                return random;
             }
         }
         public static RadialController dial;
@@ -35,6 +59,7 @@ namespace MusicVis
 
         static World()
         {
+            lastRandomNumbers = new Queue<int>(5);
             random = new Random();
             dial = RadialController.CreateForCurrentView();
             dialConfig = RadialControllerConfiguration.GetForCurrentView();
