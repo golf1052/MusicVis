@@ -21,7 +21,7 @@ namespace MusicVis
             }
         }
 
-        public Flash(Texture2D tex, int slot, float value, float yPosition, World.Side side) : base(tex)
+        public Flash(Texture2D tex, int slot, float value, float yPosition, World.Side side, bool valentines) : base(tex)
         {
             this.slot = slot;
             float xPos;
@@ -37,18 +37,25 @@ namespace MusicVis
                 World.Random.Next((int)yPosition - 100, (int)yPosition + 100));
             //sprite.velocity = new Vector2((float)World.Random.NextDouble(0.1, 5), 0);
             sprite.scale = 5 * value;
-            int spriteColor = World.Random.Next(0, 3);
-            if (spriteColor == 0)
+            if (valentines)
             {
-                sprite.color = Color.Red;
+                sprite.color = Color.Lerp(Color.Red, Color.White, slot / 220f);
             }
-            else if (spriteColor == 1)
+            else
             {
-                sprite.color = Color.Green;
-            }
-            else if (spriteColor == 2)
-            {
-                sprite.color = Color.Blue;
+                int spriteColor = World.Random.Next(0, 3);
+                if (spriteColor == 0)
+                {
+                    sprite.color = Color.Red;
+                }
+                else if (spriteColor == 1)
+                {
+                    sprite.color = Color.Green;
+                }
+                else if (spriteColor == 2)
+                {
+                    sprite.color = Color.Blue;
+                }
             }
             fadeRate = (float)World.Random.NextDouble(0.05, 0.1);
             if (value >= 0.9f)

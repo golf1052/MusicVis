@@ -66,6 +66,7 @@ namespace MusicVis
         List<RadialControllerMenuItem> menuItems;
         int selectedItem;
         float controlValue = 0.5f;
+        public static bool ValentinesOn { get; set; }
 
         public Game1()
         {
@@ -107,8 +108,8 @@ namespace MusicVis
             }
             else if (selected.DisplayText == ValentinesText)
             {
-                circleManager.ValentinesOn = !circleManager.ValentinesOn;
-                fadeOutTextManager.CreateState(circleManager.ValentinesOn);
+                ValentinesOn = !ValentinesOn;
+                fadeOutTextManager.CreateState(ValentinesOn);
             }
             else if (selected.DisplayText == OnlyHeartsText)
             {

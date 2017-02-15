@@ -34,14 +34,14 @@ namespace MusicVis
             {
                 if (numBeats[slot] < 1)
                 {
-                    Flash tmp = new Flash(flashTexture, slot, value, yPosition, side);
+                    Flash tmp = new Flash(flashTexture, slot, value, yPosition, side, Game1.ValentinesOn);
                     numBeats[slot]++;
                     flashes.Add(tmp);
                 }
             }
             else
             {
-                Flash tmp = new Flash(flashTexture, slot, value, yPosition, side);
+                Flash tmp = new Flash(flashTexture, slot, value, yPosition, side, Game1.ValentinesOn);
                 flashes.Add(tmp);
             }
         }

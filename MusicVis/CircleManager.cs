@@ -16,7 +16,6 @@ namespace MusicVis
         private Dictionary<int, List<Circle>> rightCircles = new Dictionary<int, List<Circle>>();
         private int capacity = 5;
         public bool On { get; set; }
-        public bool ValentinesOn { get; set; }
         public bool OnlyHeartsOn { get; set; }
 
         public CircleManager(List<Texture2D> textures)
@@ -30,7 +29,7 @@ namespace MusicVis
                 rightCircles.Add(i, new List<Circle>(5));
             }
             On = false;
-            ValentinesOn = false;
+            Game1.ValentinesOn = false;
             OnlyHeartsOn = false;
         }
 
@@ -52,12 +51,12 @@ namespace MusicVis
                 {
                     if (side == World.Side.Left && leftCircles[slot].Count < capacity)
                     {
-                        Circle tmp = new Circle(textures[randomTexture], yPosition, slot, side, ValentinesOn);
+                        Circle tmp = new Circle(textures[randomTexture], yPosition, slot, side, Game1.ValentinesOn);
                         leftCircles[slot].Add(tmp);
                     }
                     else if (side == World.Side.Right && rightCircles[slot].Count < capacity)
                     {
-                        Circle tmp = new Circle(textures[randomTexture], yPosition, slot, side, ValentinesOn);
+                        Circle tmp = new Circle(textures[randomTexture], yPosition, slot, side, Game1.ValentinesOn);
                         rightCircles[slot].Add(tmp);
                     }
                 }
