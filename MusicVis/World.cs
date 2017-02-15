@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -19,36 +20,30 @@ namespace MusicVis
         }
 
         private static Random random;
-        private static Queue<int> lastRandomNumbers;
+        private static int zeroRandomCheck = 0;
+        private static int numbersChecked = 0;
         public static Random Random
         {
             get
             {
-                if (lastRandomNumbers.Count < 5)
+                if (numbersChecked < 5)
                 {
-                    lastRandomNumbers.Enqueue(random.Next(0, 100));
+                    zeroRandomCheck |= random.Next(0, 100);
+                    numbersChecked++;
                 }
-                else if (lastRandomNumbers.Count == 5)
+                else
                 {
-                    bool allNumbers0 = true;
-                    foreach (var number in lastRandomNumbers)
+                    if (zeroRandomCheck == 0)
                     {
-                        if (number != 0)
-                        {
-                            allNumbers0 = false;
-                            break;
-                        }
-                    }
-
-                    if (allNumbers0)
-                    {
-                        lastRandomNumbers.Clear();
+                        Debug.WriteLine("creating new random");
                         random = new Random();
+                        zeroRandomCheck = 0;
+                        numbersChecked = 0;
                     }
                     else
                     {
-                        lastRandomNumbers.Dequeue();
-                        lastRandomNumbers.Enqueue(random.Next(0, 100));
+                        zeroRandomCheck = 0;
+                        numbersChecked = 0;
                     }
                 }
                 return random;
@@ -59,7 +54,6 @@ namespace MusicVis
 
         static World()
         {
-            lastRandomNumbers = new Queue<int>(5);
             random = new Random();
             dial = RadialController.CreateForCurrentView();
             dialConfig = RadialControllerConfiguration.GetForCurrentView();
